@@ -1,4 +1,3 @@
-[root@ansible01 ~]# cat ks.yml 
 - hosts: titans
 
   tasks:
