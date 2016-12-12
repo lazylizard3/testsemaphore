@@ -1,12 +1,13 @@
-- hosts: ubuntu
+[root@ansible01 ~]# cat ks.yml 
+- hosts: titans
 
   tasks:
 
 
+    - name: Run the equivalent of "apt-get update" 
+      apt:
+        update_cache: yes
 
-#BASE="/tmp/image/zkickstartCentos67/scripts-gpu-ubuntu"
-
-# make couple of dirs
     - name: mdcluster
       file: path=/cluster state=directory
 
@@ -28,9 +29,6 @@
     - name: mdcacerts
       file: path=/etc/openldap/cacerts/ state=directory
 
- #mount santa.bii.a-star.edu.sg:/mnt/image /tmp/image
-
- # do the sssd conf, /usr/local/bin/session
 
 
     - name: Installsssd
@@ -81,9 +79,9 @@
       apt:
         name: gfortran
         state: present
-    - name: Installlibboost1.58-all-dev
+    - name: Installlibboost1.55-all-dev
       apt:
-        name: libboost1.58-all-dev
+        name: libboost1.55-all-dev
         state: present
     - name: Installlibgflags-dev
       apt:
@@ -107,21 +105,40 @@
         state: present
 
 
-
     - name: Mountiso
       mount:
         name: /tmp/image
-        src: 172.20.157.102:/home
+        src: santa.bii.a-star.edu.sg:/mnt/image
         fstype: nfs
         opts: rw
         state: mounted
 
     - copy:
-        src: /etc/puppet/puppet.conf
-        dest: /tmp/puppet.conf
+        remote_src: true
+        src: /tmp/image/zkickstartCentos67/scripts-gpu-ubuntu/sssd.conf
+        dest: /etc/sssd/sssd.conf
 
 
+    - file:
+        src: /bin/bash
+        # src: /tmp/image/zkickstartCentos67/scripts-gpu-ubuntu/session
+        dest: /usr/local/bin/session
+        state: link
 
+    - copy:
+        remote_src: true
+        src: /tmp/image/zkickstartCentos67/scripts-gpu-ubuntu/hosts
+        dest: /etc/hosts
+
+    - copy:
+        remote_src: true
+        src: /tmp/image/zkickstartCentos67/scripts-gpu-ubuntu/auto.master
+        dest: /etc/auto.master
+
+    - copy:
+        remote_src: true
+        src: /tmp/image/zkickstartCentos67/scripts-gpu-ubuntu/auto.home
+        dest: /etc/auto.home
 
     - service:
         name: autofs
@@ -130,35 +147,4 @@
     - service:
         name: sssd
         state: restarted
-
-
-
-# apt-get update
-# apt-get install sssd libpam-sss libnss-sss
-# cp $BASE/sssd.conf /etc/sssd/sssd.conf
-# cp $BASE/session /usr/local/bin/session
-# cp $BASE/hosts /etc/hosts
-# mkdir -p /etc/openldap/cacerts 
-
-# apt-get install autofs
-# cp $BASE/auto.master /etc/auto.master
-# cp $BASE/auto.home /etc/auto.home
-
-# service sssd restart
-# service autofs restart
-
-
-# apt-get update
-# apt-get install autofs
-# apt-get install tclsh
-# apt-get install python-dev
-# apt-get install python-pip
-# apt-get install python-virtualenv
-# apt-get install libatlas-base-dev libatlas-dev libatlas3-base
-# apt-get install gfortran
-# apt-get install libboost1.55-all-dev 
-# apt-get install libgflags-dev libgoogle-glog-dev liblmdb-dev
-# apt-get install git
-# apt-get install unzip
-# 
 
