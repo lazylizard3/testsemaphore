@@ -1,0 +1,43 @@
+- hosts: ubuntu
+
+  tasks:
+
+
+
+#BASE="/tmp/image/zkickstartCentos67/scripts-gpu-ubuntu"
+
+# make couple of dirs
+
+    - name: mdcluster
+      file: path=/cluster state=directory
+
+    - name: mdtmpimage
+      file: path=/tmp/image state=directory
+
+    - name: mdclusterapps
+      file: path=/cluster/apps state=directory
+
+    - name: mdclusterlogs
+      file: path=/cluster/logs state=directory
+
+    - name: mdclusterdata
+      file: path=/cluster/data state=directory
+
+    - name: mkdclusterscratch
+      file: path=/cluster/scratch state=directory
+
+    - name: mdcacerts
+      file: path=/etc/openldap/cacerts/ state=directory
+
+
+    - name: Mountiso
+      mount:
+        name: /tmp/image
+        src: 172.20.157.102:/home
+        fstype: nfs
+        opts: rw
+        state: mounted
+
+    - copy:
+        src: /etc/puppet/puppet.conf
+        dest: /tmp/puppet.conf
