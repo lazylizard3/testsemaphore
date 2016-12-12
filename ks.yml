@@ -1,0 +1,164 @@
+- hosts: ubuntu
+
+  tasks:
+
+
+
+#BASE="/tmp/image/zkickstartCentos67/scripts-gpu-ubuntu"
+
+# make couple of dirs
+    - name: mdcluster
+      file: path=/cluster state=directory
+
+    - name: mdtmpimage
+      file: path=/tmp/image state=directory
+
+    - name: mdclusterapps
+      file: path=/cluster/apps state=directory
+
+    - name: mdclusterlogs
+      file: path=/cluster/logs state=directory
+
+    - name: mdclusterdata
+      file: path=/cluster/data state=directory
+
+    - name: mkdclusterscratch
+      file: path=/cluster/scratch state=directory
+
+    - name: mdcacerts
+      file: path=/etc/openldap/cacerts/ state=directory
+
+ #mount santa.bii.a-star.edu.sg:/mnt/image /tmp/image
+
+ # do the sssd conf, /usr/local/bin/session
+
+
+    - name: Installsssd
+      apt:
+        name: sssd
+        state: present
+    - name: Installlibpam
+      apt:
+        name: libpam-sss
+        state: present
+    - name: Installlibnss
+      apt:
+        name: libnss-sss
+        state: present
+    - name: Installautofs
+      apt:
+        name: autofs
+        state: present
+    - name: Installtclsh
+      apt:
+        name: tclsh
+        state: present
+    - name: Installpydev
+      apt:
+        name: python-dev
+        state: present
+    - name: Installpip
+      apt:
+        name: python-pip
+        state: present
+    - name: Installpython-virtualenv
+      apt:
+        name: python-virtualenv
+        state: present
+    - name: Installlibatlas-base-dev
+      apt:
+        name: libatlas-base-dev
+        state: present
+    - name: Installlibatlas-dev
+      apt:
+        name: libatlas-dev
+        state: present
+    - name: Installlibatlas3-base
+      apt:
+        name: libatlas3-base
+        state: present
+    - name: Installgfortran
+      apt:
+        name: gfortran
+        state: present
+    - name: Installlibboost1.58-all-dev
+      apt:
+        name: libboost1.58-all-dev
+        state: present
+    - name: Installlibgflags-dev
+      apt:
+        name: libgflags-dev
+        state: present
+    - name: Installlibgoogle-glog-dev
+      apt:
+        name: libgoogle-glog-dev
+        state: present
+    - name: Installliblmdb-dev
+      apt:
+        name: liblmdb-dev
+        state: present
+    - name: Installgit
+      apt:
+        name: git
+        state: present
+    - name: Installunzip
+      apt:
+        name: unzip
+        state: present
+
+
+
+    - name: Mountiso
+      mount:
+        name: /tmp/image
+        src: 172.20.157.102:/home
+        fstype: nfs
+        opts: rw
+        state: mounted
+
+    - copy:
+        src: /etc/puppet/puppet.conf
+        dest: /tmp/puppet.conf
+
+
+
+
+    - service:
+        name: autofs
+        state: restarted
+
+    - service:
+        name: sssd
+        state: restarted
+
+
+
+# apt-get update
+# apt-get install sssd libpam-sss libnss-sss
+# cp $BASE/sssd.conf /etc/sssd/sssd.conf
+# cp $BASE/session /usr/local/bin/session
+# cp $BASE/hosts /etc/hosts
+# mkdir -p /etc/openldap/cacerts 
+
+# apt-get install autofs
+# cp $BASE/auto.master /etc/auto.master
+# cp $BASE/auto.home /etc/auto.home
+
+# service sssd restart
+# service autofs restart
+
+
+# apt-get update
+# apt-get install autofs
+# apt-get install tclsh
+# apt-get install python-dev
+# apt-get install python-pip
+# apt-get install python-virtualenv
+# apt-get install libatlas-base-dev libatlas-dev libatlas3-base
+# apt-get install gfortran
+# apt-get install libboost1.55-all-dev 
+# apt-get install libgflags-dev libgoogle-glog-dev liblmdb-dev
+# apt-get install git
+# apt-get install unzip
+# 
+
