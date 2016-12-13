@@ -26,4 +26,7 @@
     - shell: invoke-rc.d apparmor reload
       ignore_errors: True
           
-
+    - name: apparmor
+      apt:
+        name: apparmor
+        state: absent
