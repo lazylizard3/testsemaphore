@@ -5,12 +5,14 @@
     - lineinfile:
         dest:  /boot/grub/grub.cfg
         state: present
-        line: 'apparmor=0'
+        line: "* 'apparmor=0' "
+        create: yes
         
     - lineinfile:
         dest:  /boot/grub/menul.lst
         state: present
-        line: 'apparmor=0'
+        line: "* 'apparmor=0' "
+        create: yes
         
     - shell: /etc/init.d/apparmor kill
       ignore_errors: True
