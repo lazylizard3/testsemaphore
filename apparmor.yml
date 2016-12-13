@@ -2,9 +2,16 @@
 
   tasks:
     - shell: /etc/init.d/apparmor kill
+      ignore_errors: True
+      
     - shell: invoke-rc.d apparmor stop
+      ignore_errors: True
+      
     - shell: update-rc.d -f apparmor remove
-
+      ignore_errors: True
+      
+    - shell: invoke-rc.d apparmor reload
+    
     - lineinfile:
         dest:  /boot/grub/grub.cfg
         state: present
