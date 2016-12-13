@@ -11,7 +11,8 @@
       ignore_errors: True
       
     - shell: invoke-rc.d apparmor reload
-    
+      ignore_errors: True
+          
     - lineinfile:
         dest:  /boot/grub/grub.cfg
         state: present
