@@ -8,6 +8,22 @@
     - pip:
         name: Keras
     
+    - lineinfile:
+        dest: /etc/environment
+        state: present
+        line: 'LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/cluster/apps/x86_64/packages/cuda_8.0/lib64:/cluster/apps/x86_64/packages/cuda_8.0/extras/CUPTI/lib64"'
+        
+    - lineinfile:
+        dest: /etc/environment
+        state: present
+        line: 'CUDA_HOME=/cluster/apps/x86_64/packages/cuda_8.0'
+        
+    - lineinfile:
+        dest: /etc/environment
+        state: present
+        line: 'TF_BINARY_URL=https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow-0.11.0rc1-cp27-none-linux_x86_64.whl'
+        
+    - shell: source /etc/environment    
     - shell: export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/cluster/apps/x86_64/packages/cuda_8.0/lib64:/cluster/apps/x86_64/packages/cuda_8.0/extras/CUPTI/lib64"
     - shell: export CUDA_HOME=/cluster/apps/x86_64/packages/cuda_8.0
     - shell: export TF_BINARY_URL=https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow-0.11.0rc1-cp27-none-linux_x86_64.whl
