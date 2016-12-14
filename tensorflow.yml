@@ -3,10 +3,10 @@
   tasks:
   
     - pip:
-        name: bottle
+        name: numpy
     
     - pip:
-        name: bottle
+        name: Keras
     
     - shell: export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/cluster/apps/x86_64/packages/cuda_8.0/lib64:/cluster/apps/x86_64/packages/cuda_8.0/extras/CUPTI/lib64"
     - shell: export CUDA_HOME=/cluster/apps/x86_64/packages/cuda_8.0
