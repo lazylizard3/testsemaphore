@@ -2,11 +2,13 @@
 
   tasks:
 
-
-    - name: Run the equivalent of "apt-get update" 
+    - name: Run the equivalent of "apt-get update" as a separate step
       apt:
         update_cache: yes
 
+#BASE="/tmp/image/zkickstartCentos67/scripts-gpu-ubuntu"
+
+# make couple of dirs
     - name: mdcluster
       file: path=/cluster state=directory
 
@@ -28,7 +30,17 @@
     - name: mdcacerts
       file: path=/etc/openldap/cacerts/ state=directory
 
+    - name: mdrootbin
+      file: path=/root/bin state=directory
 
+ #mount santa.bii.a-star.edu.sg:/mnt/image /tmp/image
+
+ # do the sssd conf, /usr/local/bin/session
+
+    - name: remove_apparmor
+      apt:
+        name: apparmor
+        state: absent
 
     - name: Installsssd
       apt:
@@ -116,12 +128,17 @@
         remote_src: true
         src: /tmp/image/zkickstartCentos67/scripts-gpu-ubuntu/sssd.conf
         dest: /etc/sssd/sssd.conf
-
+        mode: 0600
 
     - file:
         src: /bin/bash
         # src: /tmp/image/zkickstartCentos67/scripts-gpu-ubuntu/session
         dest: /usr/local/bin/session
+        state: link
+
+    - file:
+        src: /etc/bash.bashrc
+        dest: /etc/bashrc
         state: link
 
     - copy:
@@ -139,6 +156,17 @@
         src: /tmp/image/zkickstartCentos67/scripts-gpu-ubuntu/auto.home
         dest: /etc/auto.home
 
+    - copy:
+        remote_src: true
+        src: /tmp/image/zkickstartCentos67/scripts-gpu-ubuntu/local.sh
+        dest: /root/bin/local.sh
+        mode: 0755
+
+    - lineinfile:
+        dest: /etc/rc.local
+        state: present
+        line: '(/root/bin/local.sh &)'
+    
     - service:
         name: autofs
         state: restarted
@@ -146,4 +174,31 @@
     - service:
         name: sssd
         state: restarted
+     
 
+# apt-get update
+# apt-get install sssd libpam-sss libnss-sss
+# cp $BASE/sssd.conf /etc/sssd/sssd.conf
+# cp $BASE/session /usr/local/bin/session
+# cp $BASE/hosts /etc/hosts
+# mkdir -p /etc/openldap/cacerts 
+
+# apt-get install autofs
+# cp $BASE/auto.master /etc/auto.master
+# cp $BASE/auto.home /etc/auto.home
+
+# service sssd restart
+# service autofs restart
+
+# apt-get update
+# apt-get install autofs
+# apt-get install tclsh
+# apt-get install python-dev
+# apt-get install python-pip
+# apt-get install python-virtualenv
+# apt-get install libatlas-base-dev libatlas-dev libatlas3-base
+# apt-get install gfortran
+# apt-get install libboost1.55-all-dev 
+# apt-get install libgflags-dev libgoogle-glog-dev liblmdb-dev
+# apt-get install git
+# apt-get install unzip
