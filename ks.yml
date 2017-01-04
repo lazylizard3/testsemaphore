@@ -1,6 +1,9 @@
 - hosts: 172.20.157.126
 
   tasks:
+    raw: sudo apt-get update && sudo apt-get -y python-simplejson 
+    delegate_to: '{{ item }}'
+    with_items: {{ groups["hosts"] }}
 
     - name: Run the equivalent of "apt-get update" as a separate step
       apt:
