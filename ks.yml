@@ -1,4 +1,4 @@
-- hosts: titans
+- hosts: 172.20.156.75
 
   tasks:
 
@@ -90,9 +90,9 @@
       apt:
         name: gfortran
         state: present
-    - name: Installlibboost1.55-all-dev
+    - name: Installlibboost1.58-all-dev
       apt:
-        name: libboost1.55-all-dev
+        name: libboost1.58-all-dev
         state: present
     - name: Installlibgflags-dev
       apt:
@@ -116,17 +116,18 @@
         state: present
 
 
-    - name: Mountiso
-      mount:
-        name: /tmp/image
-        src: santa.bii.a-star.edu.sg:/mnt/image
-        fstype: nfs
-        opts: rw
-        state: mounted
+#    - name: Mountiso
+#      mount:
+#        name: /tmp/image
+#        src: santa.bii.a-star.edu.sg:/mnt/image
+#        fstype: nfs
+#        opts: rw
+#        state: mounted
 
     - copy:
-        remote_src: true
-        src: /tmp/image/zkickstartCentos67/scripts-gpu-ubuntu/sssd.conf
+        #remote_src: true
+        #src: /tmp/image/zkickstartCentos67/scripts-gpu-ubuntu/sssd.conf
+        src: /root/santa/sssd.conf
         dest: /etc/sssd/sssd.conf
         mode: 0600
 
@@ -142,23 +143,26 @@
         state: link
 
     - copy:
-        remote_src: true
-        src: /tmp/image/zkickstartCentos67/scripts-gpu-ubuntu/hosts
+        #remote_src: true
+        #src: /tmp/image/zkickstartCentos67/scripts-gpu-ubuntu/hosts
+        src: /root/santa/hosts
         dest: /etc/hosts
 
     - copy:
-        remote_src: true
-        src: /tmp/image/zkickstartCentos67/scripts-gpu-ubuntu/auto.master
+        #remote_src: true
+        #src: /tmp/image/zkickstartCentos67/scripts-gpu-ubuntu/auto.master
+        src: /root/santa/auto.master
         dest: /etc/auto.master
 
     - copy:
-        remote_src: true
-        src: /tmp/image/zkickstartCentos67/scripts-gpu-ubuntu/auto.home
+        #remote_src: true
+        #src: /tmp/image/zkickstartCentos67/scripts-gpu-ubuntu/auto.home
+        src: /root/santa/auto.home
         dest: /etc/auto.home
-
     - copy:
-        remote_src: true
-        src: /tmp/image/zkickstartCentos67/scripts-gpu-ubuntu/local.sh
+        #remote_src: true
+        #src: /tmp/image/zkickstartCentos67/scripts-gpu-ubuntu/local.sh
+        src: /root/santa/local1604.sh
         dest: /root/bin/local.sh
         mode: 0755
 
@@ -174,31 +178,85 @@
     - service:
         name: sssd
         state: restarted
-     
 
-# apt-get update
-# apt-get install sssd libpam-sss libnss-sss
-# cp $BASE/sssd.conf /etc/sssd/sssd.conf
-# cp $BASE/session /usr/local/bin/session
-# cp $BASE/hosts /etc/hosts
-# mkdir -p /etc/openldap/cacerts 
+    - pip:
+        name: --upgrade setuptools
+    - pip:
+        name: --upgrade pip
 
-# apt-get install autofs
-# cp $BASE/auto.master /etc/auto.master
-# cp $BASE/auto.home /etc/auto.home
+    - name: python-matplotlib
+      apt:
+        name: python-matplotlib
+        state: present
+    - name: python-sklearn
+      apt:
+        name: python-sklearn
+        state: present
+    - name: python-skimage
+      apt:
+        name: python-skimage
+        state: present
+    - name: python-h5py
+      apt:
+        name: python-h5py
+        state: present
+    - name: python-leveldb
+      apt:
+        name: python-leveldb
+        state: present
+    - name: python-networkx
+      apt:
+        name: python-networkx
+        state: present
+    - name: python-nose
+      apt:
+        name: python-nose
+        state: present
+    - name: python-pandas
+      apt:
+        name: python-pandas
+        state: present
+    - name: python-gflags
+      apt:
+        name: python-gflags
+        state: present
+    - name: cython
+      apt:
+        name: cython
+        state: present
+    - name: ipython
+      apt:
+        name: ipython
+        state: present
 
-# service sssd restart
-# service autofs restart
+    - pip:
+        name: easydict
 
-# apt-get update
-# apt-get install autofs
-# apt-get install tclsh
-# apt-get install python-dev
-# apt-get install python-pip
-# apt-get install python-virtualenv
-# apt-get install libatlas-base-dev libatlas-dev libatlas3-base
-# apt-get install gfortran
-# apt-get install libboost1.55-all-dev 
-# apt-get install libgflags-dev libgoogle-glog-dev liblmdb-dev
-# apt-get install git
-# apt-get install unzip
+    - name: python-opencv
+      apt:
+        name: python-opencv
+        state: present
+
+    - service:
+        name: lightdm
+        state: stopped
+
+
+    - service:
+        name: lightdm
+        enabled: no
+    - service:
+        name: cups*
+        enabled: no
+    - service:
+        name: cups.path
+        enabled: no
+    - service:
+        name: cups.service
+        enabled: no
+    - service:
+        name: cups.socket
+        enabled: no
+    - service:
+        name: ModemManager
+        enabled: no
