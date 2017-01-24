@@ -1,0 +1,357 @@
+- hosts: 192.168.2.100 
+
+  tasks:
+
+    #- name: yum update -y
+    #  command: "yum update -y"
+
+# make couple of dirs
+    - name: mdcluster
+      file: path=/cluster state=directory
+
+    - name: mdtmpimage
+      file: path=/tmp/image state=directory
+
+    - name: mdclusterapps
+      file: path=/cluster/apps state=directory
+
+    - name: mdclusterlogs
+      file: path=/cluster/logs state=directory
+
+    - name: mdclusterdata
+      file: path=/cluster/data state=directory
+
+    - name: mkdclusterscratch
+      file: path=/cluster/scratch state=directory
+
+    - name: mdcacerts
+      file: path=/etc/openldap/cacerts/ state=directory
+
+    - name: mdrootbin
+      file: path=/root/bin state=directory
+
+
+
+    - copy:
+        src: /root/reindeer/hosts
+        dest: /etc/hosts
+    - copy:
+        src: /root/reindeer/nsswitch.conf
+        dest: /etc/nsswitch.conf
+    - copy:
+        src: /root/reindeer/auto.master
+        dest: /etc/auto.master
+    - copy:
+        src: /root/reindeer/auto.home
+        dest: /etc/auto.home
+    - copy:
+        src: /root/reindeer/auto.cluster
+        dest: /etc/auto.cluster
+    - copy:
+        src: /root/reindeer/autofs
+        dest: /etc/sysconfig/autofs
+    - copy:
+        src: /root/reindeer/limits.conf
+        dest: /etc/security/limits.conf
+    - copy:
+        src: /root/reindeer/access.conf
+        dest: /etc/security/access.conf
+    - copy:
+        src: /root/reindeer/pam-system-auth-ac
+        dest: /etc/pam.d/pam-system-auth-ac
+    - copy:
+        src: /root/reindeer/pam-sshd
+        dest: /etc/pam.d/pam-sshd
+    - copy:
+        src: /root/reindeer/ldap.conf
+        dest: /etc/ldap.conf
+    - copy:
+        src: /root/reindeer/nslcd.conf
+        dest: /etc/nslcd.conf
+
+    - copy:
+        src: /root/reindeer/santa-authorized_keys
+        dest: /root/.ssh/authorized_keys
+
+    - copy:
+        src: /root/reindeer/sshhostkeys.tar
+        dest: /tmp/image/scripts/
+
+    #- name: untarsshhostkeys
+    #  command: "tar -Pxvf /tmp/image/scripts/sshhostkeys.tar"
+
+
+    - unarchive:
+        src: /root/reindeer/sshhostkeys.tar
+        dest: /tmp/image/scripts/
+
+    - synchronize:
+        src: /root/reindeer/rpms/
+        dest: /tmp/image/rpms
+
+    - file:
+        src: /bin/bash
+        dest: /usr/local/bin/session
+        state: link
+        
+    - copy:
+        src: /root/reindeer/local-reindeer-cuda.sh
+        dest: /root/bin/local.sh
+        mode: 0755
+
+    - lineinfile:
+        dest: /etc/rc.local
+        state: present
+        line: '(/root/bin/local.sh &)'
+
+
+    - lineinfile:
+        dest: /etc/ld.so.conf
+        state: present
+        line: 'LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/cluster/apps/x86_64/packages/cuda/lib64:/cluster/apps/x86_64/packages/cuda_8.0/lib64:/cluster/apps/x86_64/packages/cuda_8.0/extras/CUPTI/lib64"'
+      
+    - shell: ldconfig 
+      args:
+        executable: /bin/bash
+
+    - shell: sed -i 's/\/etc\/sudoers.d/\/cluster\/scratch\/scripts\/sudoers.d/g' /etc/sudoers
+      args:
+        executable: /bin/bash
+
+    - yum:
+        name: /tmp/image/rpms/gmp-devel-4.3.1-7.el6_2.2.x86_64.rpm
+        state: present
+
+    #- name: install mpfr-devel* rpm from a local file
+    - yum:
+        name: /tmp/image/rpms/mpfr-devel-2.4.1-6.el6.x86_64.rpm
+        state: present
+
+    #- name: install libmpc-* rpm from a local file
+    - yum:
+        name: /tmp/image/rpms/libmpc-0.8-3.el6.x86_64.rpm
+        state: present
+    - yum:
+        name: /tmp/image/rpms/libmpc-devel-0.8-3.el6.x86_64.rpm
+        state: present
+
+    #- name: install hdf5-* rpm from a local file
+    - yum:
+        name: /tmp/image/rpms/hdf5-1.8.5.patch1-9.el6.x86_64.rpm
+        state: present
+    - yum:
+        name: /tmp/image/rpms/hdf5-devel-1.8.5.patch1-9.el6.x86_64.rpm
+        state: present
+    - yum:
+        name: /tmp/image/rpms/hdf5-static-1.8.5.patch1-9.el6.x86_64.rpm
+        state: present
+
+    #- name: install fftw-* rpm from a local file
+    - yum:
+        name: /tmp/image/rpms/fftw-3.2.1-3.1.el6.x86_64.rpm
+        state: present
+    - yum:
+        name: /tmp/image/rpms/fftw-devel-3.2.1-3.1.el6.x86_64.rpm
+        state: present
+
+    #- name: install bash-4* rpm from a local file
+    - yum:
+        name: /tmp/image/rpms/bash-4.1.2-33.el6_7.1.x86_64.rpm
+        state: present
+
+   #- name: install epel-* rpm from a local file
+    - yum:
+        name: /tmp/image/rpms/epel-release-6-8.noarch.rpm
+        state: present
+
+
+    #- name: install * rpm from a local file
+    - yum:
+        name: /tmp/image/rpms/nss-softokn-freebl-3.16.2.3-14.4.el7.i686.rpm
+        state: present
+            
+    #- name: install * rpm from a local file
+    #- yum:
+    #    name: /tmp/image/rpms/glibc-2.12-1.166.el6_7.7.i686.rpm
+    #    state: present
+    #- yum:
+    #    name: /tmp/image/rpms/glibc-2.12-1.166.el6_7.7.x86_64.rpm
+    #    state: present
+    #- yum:
+    #    name: /tmp/image/rpms/glibc-common-2.12-1.166.el6_7.7.x86_64.rpm
+    #    state: present
+    #- yum:
+    #    name: /tmp/image/rpms/glibc-devel-2.12-1.166.el6_7.7.i686.rpm
+    #    state: present
+    #- yum:
+    #    name: /tmp/image/rpms/glibc-devel-2.12-1.166.el6_7.7.x86_64.rpm
+    #    state: present
+    #- yum:
+    #    name: /tmp/image/rpms/glibc-headers-2.12-1.166.el6_7.7.x86_64.rpm
+    #    state: present
+    #- yum:
+    #    name: /tmp/image/rpms/nscd-2.12-1.166.el6_7.7.x86_64.rpm
+    #    state: present
+
+    #- copy:
+    #    src: /root/santa/NVIDIA-Linux-x86_64-367.57.run
+    #    dest: /tmp/image/
+    #    mode: 0755
+
+    #- shell: /tmp/image/NVIDIA-Linux-x86_64-367.57.run --ui=none --no-questions -a
+
+
+    - service:
+        name: autofs
+        state: restarted
+
+    - service:
+        name: sysstat
+        state: restarted
+
+    - service:
+        name: NetworkManager
+        state: restarted
+
+
+# disable services
+ 
+    - service:
+        name: acpid
+        enabled: no
+        state: stopped
+    - service:
+        name: atd
+        enabled: no
+        state: stopped 
+    #- service:
+    #    name: anacron
+    #    enabled: no
+    #    state: stopped
+    - service:
+        name: auditd
+        enabled: no
+        state: stopped
+    #- service:
+    #    name: avahi-daemon
+    #    enabled: no
+    #    state: stopped
+    - service:
+        name: bluetooth
+        enabled: no
+        state: stopped
+    - service:
+        name: cpuspeed
+        enabled: no
+        state: stopped
+    - service:
+        name: cups
+        enabled: no
+        state: stopped
+    #- service:
+    #    name: gpm
+    #    enabled: no
+    #    state: stopped
+    - service:
+        name: haldaemon
+        enabled: no
+        state: stopped
+    #- service:
+    #    name: hidd
+    #    enabled: no
+    #    state: stopped
+    #- service:
+    #    name: hplip
+    #    enabled: no
+    #    state: stopped
+    - service:
+        name: ip6tables
+        enabled: no
+        state: stopped
+    #- service:
+    #    name: isdn
+    #    enabled: no
+    #    state: stopped
+    - service:
+        name: lvm2-monitor
+        enabled: no
+        state: stopped
+    #- service:
+    #    name: mcstrans
+    #    enabled: no
+    #    state: stopped
+    - service:
+        name: mdmonitor
+        enabled: no
+        state: stopped
+    #- service:
+    #    name: microcode_ctl
+    #    enabled: no
+    #    state: stopped
+    - service:
+        name: modclusterd
+        enabled: no
+        state: stopped
+    - service:
+        name: pcscd
+        enabled: no
+        state: stopped
+    #- service:
+    #    name: readahead_early
+    #    enabled: no
+    #    state: stopped
+    #- service:
+    #    name: restorecond
+    #    enabled: no
+    #    state: stopped
+    - service:
+        name: ricci
+        enabled: no
+        state: stopped
+    - service:
+        name: rpcgssd
+        enabled: no
+        state: stopped
+    - service:
+        name: rpcidmapd
+        enabled: no
+        state: stopped
+    #- service:
+    #    name: sendmail
+    #    enabled: no
+    #    state: stopped
+    #- service:
+    #    name: setroubleshoot
+    #    enabled: no
+    #    state: stopped
+    - service:
+        name: smartd
+        enabled: no
+        state: stopped
+    #- service:
+    #    name: xfs
+    #    enabled: no
+    #    state: stopped
+    - service:
+        name: xinetd
+        enabled: no
+        state: stopped
+    #- service:
+    #    name: yum-updatesd
+    #    enabled: no
+    #    state: stopped
+    - service:
+        name: irqbalance
+        enabled: no
+        state: stopped
+    - service:
+        name: messagebus
+        enabled: no
+        state: stopped
+    #- service:
+    #    name: qpidd
+    #    enabled: no
+    #    state: stopped
+
+
+
